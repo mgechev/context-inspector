@@ -370,7 +370,7 @@ function initResizer() {
     if (!isResizing) return;
 
     const deltaX = e.clientX - startX;
-    const newWidth = Math.max(280, Math.min(400, startWidth + deltaX));
+    const newWidth = Math.max(280, Math.min(600, startWidth + deltaX));
 
     leftPanel.style.width = newWidth + "px";
   });

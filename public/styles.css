@@ -1,6 +1,4 @@
-/* CSS Variables for theming */
 :root {
-  /* Light theme (default) */
   --bg-primary: #ffffff;
   --bg-secondary: #f8f9fa;
   --bg-tertiary: #e9ecef;
@@ -24,7 +22,6 @@
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark theme */
 [data-theme="dark"] {
   --bg-primary: #0f0f0f;
   --bg-secondary: #1a1a1a;
@@ -73,7 +70,7 @@ body {
   flex-direction: column;
   transition: var(--transition);
   min-width: 280px;
-  max-width: 400px;
+  max-width: 600px;
   position: relative;
 }
 
@@ -496,7 +493,6 @@ body {
 .no-selection {
   text-align: center;
   color: var(--text-secondary);
-  font-style: italic;
   margin-top: 4rem;
   font-size: 1.25rem;
   transition: var(--transition);
@@ -562,9 +558,7 @@ body {
   box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
 }
 
-/* Animations */
 
-/* Responsive design */
 @media (max-width: 768px) {
   .container {
     flex-direction: column;
