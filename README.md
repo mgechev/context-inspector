@@ -32,7 +32,6 @@ Receive a new context string.
 {
   "success": true,
   "id": "1754679343625",
-  "title": "Test Title",
   "timestamp": "2025-08-08T18:55:43.625Z"
 }
 ```
@@ -78,6 +77,18 @@ Serves the main web interface.
      -d '{"context": "Your context here", "title": "Optional title"}'
    ```
 
+   Alternatively, in your JavaScript you can use `fetch`:
+
+   ```js
+   fetch('http://localhost:3000/v1/context', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ context: summary})
+    });
+   ```
+
 3. **Open the web interface:**
    Navigate to `http://localhost:3000` in your browser
 
@@ -85,34 +96,6 @@ Serves the main web interface.
    - Select two contexts from the left panel
    - View the diff comparison on the right panel
    - The diff shows added lines in green, removed lines in red, and unchanged lines in gray
-
-## Project Structure
-
-```text
-context-inspector/
-├── index.js              # Main server file
-├── package.json          # Dependencies and scripts
-├── public/
-│   ├── index.html        # Main web interface
-│   ├── styles.css        # CSS styles
-│   └── script.js         # JavaScript functionality
-└── README.md            # This file
-```
-
-## Dependencies
-
-- `express`: Web framework
-- `cors`: Cross-origin resource sharing
-- `diff`: JavaScript diff library for accurate text comparison
-
-## Development
-
-The application is built with:
-
-- **Backend**: Node.js with Express
-- **Frontend**: Vanilla JavaScript with modern CSS
-- **Real-time**: Server-Sent Events (SSE)
-- **Diffing**: diff library for git-like comparison
 
 ## License
 

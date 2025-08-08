@@ -140,17 +140,7 @@ function generateDiff(text1, text2) {
     newlineIsToken: true,
   });
 
-  console.log("Diff changes:", changes.length);
-  changes.forEach((change, index) => {
-    console.log(
-      `Change ${index}:`,
-      change.added ? "added" : change.removed ? "removed" : "unchanged",
-      "length:",
-      change.value.length,
-      "value:",
-      change.value.substring(0, 30) + "..."
-    );
-  });
+
 
   let diffHtml = "";
   let unchangedCount = 0;
@@ -158,64 +148,50 @@ function generateDiff(text1, text2) {
 
   changes.forEach((change, index) => {
     if (change.added) {
-      // If we have accumulated unchanged content, add a collapsible section
-      if (unchangedCount > 0) {
-        console.log(
-          `Adding collapsible section with ${unchangedCount} lines before added content`
-        );
-        diffHtml += createCollapsibleSection(unchangedContent, unchangedCount);
-        unchangedCount = 0;
-        unchangedContent = "";
-      }
+             // If we have accumulated unchanged content, add a collapsible section
+       if (unchangedCount > 0) {
+         diffHtml += createCollapsibleSection(unchangedContent, unchangedCount);
+         unchangedCount = 0;
+         unchangedContent = "";
+       }
       diffHtml += `<div class="diff-line added">+ ${escapeHtml(
         change.value
       )}</div>`;
     } else if (change.removed) {
-      // If we have accumulated unchanged content, add a collapsible section
-      if (unchangedCount > 0) {
-        console.log(
-          `Adding collapsible section with ${unchangedCount} lines before removed content`
-        );
-        diffHtml += createCollapsibleSection(unchangedContent, unchangedCount);
-        unchangedCount = 0;
-        unchangedContent = "";
-      }
+             // If we have accumulated unchanged content, add a collapsible section
+       if (unchangedCount > 0) {
+         diffHtml += createCollapsibleSection(unchangedContent, unchangedCount);
+         unchangedCount = 0;
+         unchangedContent = "";
+       }
       diffHtml += `<div class="diff-line removed">- ${escapeHtml(
         change.value
       )}</div>`;
     } else {
-      // Accumulate unchanged content
-      const lines = change.value.split("\n");
-      unchangedCount += lines.length - 1;
-      unchangedContent += change.value;
-      console.log(
-        `Accumulating unchanged content, count: ${unchangedCount}, content length: ${unchangedContent.length}`
-      );
+             // Accumulate unchanged content
+       const lines = change.value.split("\n");
+       unchangedCount += lines.length - 1;
+       unchangedContent += change.value;
     }
   });
 
-  // Add any remaining unchanged content at the end
-  if (unchangedCount > 0) {
-    console.log(
-      `Adding final collapsible section with ${unchangedCount} lines`
-    );
-    diffHtml += createCollapsibleSection(unchangedContent, unchangedCount);
-  }
+     // Add any remaining unchanged content at the end
+   if (unchangedCount > 0) {
+     diffHtml += createCollapsibleSection(unchangedContent, unchangedCount);
+   }
 
-  console.log("Final diff HTML length:", diffHtml.length);
-  return diffHtml;
+   return diffHtml;
 }
 
 function createCollapsibleSection(content, lineCount) {
   const sectionId = "collapsed-" + Math.random().toString(36).substr(2, 9);
-  console.log(`Creating collapsible section with ${lineCount} lines`);
   return `
     <div class="collapsible-section collapsed" data-section-id="${sectionId}">
       <div class="collapsible-header" onclick="toggleCollapsible('${sectionId}')">
         <span class="expand-icon">+</span>
         <span class="collapsed-text">Same content</span>
       </div>
-      <div class="collapsible-content">
+      <div class="collapsible-content" onclick="toggleCollapsible('${sectionId}')">
         ${content
           .split("\n")
           .map(
@@ -234,8 +210,14 @@ window.toggleCollapsible = function (sectionId) {
   if (section) {
     section.classList.toggle("collapsed");
     const icon = section.querySelector(".expand-icon");
+    const collapsedText = section.querySelector(".collapsed-text");
+    
     if (icon) {
       icon.textContent = section.classList.contains("collapsed") ? "+" : "−";
+    }
+    
+    if (collapsedText) {
+      collapsedText.style.display = section.classList.contains("collapsed") ? "inline" : "none";
     }
   }
 };
@@ -285,12 +267,9 @@ function escapeHtml(text) {
 
 // Theme management
 function initTheme() {
-  console.log("Initializing theme...");
-
   // Check for saved theme preference or default to auto
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme) {
-    console.log("Found saved theme:", savedTheme);
     currentTheme = savedTheme;
     setTheme(currentTheme);
   } else {
@@ -299,18 +278,14 @@ function initTheme() {
       "(prefers-color-scheme: dark)"
     ).matches;
     currentTheme = prefersDark ? "dark" : "light";
-    console.log("Auto-detected theme:", currentTheme);
     setTheme(currentTheme);
   }
 
   const themeToggle = document.getElementById("themeToggle");
   if (themeToggle) {
-    console.log("Theme toggle button found, adding event listener");
     themeToggle.addEventListener("click", toggleTheme);
     // Also add event listener for touch devices
     themeToggle.addEventListener("touchend", toggleTheme);
-  } else {
-    console.error("Theme toggle button not found during initialization");
   }
 }
 

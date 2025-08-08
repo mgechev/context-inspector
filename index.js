@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // Store contexts with timestamps
-let contexts = [];
+const contexts = [];
 let clients = [];
 
 // SSE endpoint for real-time updates
