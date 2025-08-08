@@ -207,64 +207,139 @@ function escapeHtml(text) {
 
 // Theme management
 function initTheme() {
+  console.log('Initializing theme...');
+  
   // Check for saved theme preference or default to auto
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme) {
+    console.log('Found saved theme:', savedTheme);
     currentTheme = savedTheme;
     setTheme(currentTheme);
   } else {
     // Auto-detect based on system preference
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
-    setTheme(prefersDark ? "dark" : "light");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    currentTheme = prefersDark ? "dark" : "light";
+    console.log('Auto-detected theme:', currentTheme);
+    setTheme(currentTheme);
   }
 
   // Listen for system theme changes
-  window
-    .matchMedia("(prefers-color-scheme: dark)")
-    .addEventListener("change", (e) => {
-      if (currentTheme === "auto") {
-        setTheme(e.matches ? "dark" : "light");
-      }
-    });
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+    if (currentTheme === "auto") {
+      setTheme(e.matches ? "dark" : "light");
+    }
+  });
 
   // Setup theme toggle
   const themeToggle = document.getElementById("themeToggle");
-  themeToggle.addEventListener("click", toggleTheme);
+  if (themeToggle) {
+    console.log('Theme toggle button found, adding event listener');
+    themeToggle.addEventListener("click", toggleTheme);
+  } else {
+    console.error('Theme toggle button not found during initialization');
+  }
 }
 
 function setTheme(theme) {
+  console.log('Setting theme to:', theme);
   const root = document.documentElement;
   const themeToggle = document.getElementById("themeToggle");
+  
+  if (!themeToggle) {
+    console.error('Theme toggle button not found');
+    return;
+  }
+  
   const themeText = themeToggle.querySelector(".theme-text");
   const sunIcon = themeToggle.querySelector(".sun-icon");
 
   if (theme === "dark") {
     root.setAttribute("data-theme", "dark");
-    themeText.textContent = "Dark";
-    sunIcon.innerHTML = `
-            <path fill-rule="evenodd" d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" clip-rule="evenodd"></path>
-        `;
+    if (themeText) themeText.textContent = "Dark";
+    if (sunIcon) {
+      sunIcon.innerHTML = `
+        <path fill-rule="evenodd" d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" clip-rule="evenodd"></path>
+      `;
+    }
   } else {
     root.removeAttribute("data-theme");
-    themeText.textContent = "Light";
-    sunIcon.innerHTML = `
-            <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
-        `;
+    if (themeText) themeText.textContent = "Light";
+    if (sunIcon) {
+      sunIcon.innerHTML = `
+        <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+      `;
+    }
   }
 
   currentTheme = theme;
   localStorage.setItem("theme", theme);
+  console.log('Theme set successfully, currentTheme:', currentTheme);
 }
 
 function toggleTheme() {
+  console.log('Theme toggle clicked, current theme:', currentTheme);
   const newTheme = currentTheme === "dark" ? "light" : "dark";
+  console.log('Switching to theme:', newTheme);
   setTheme(newTheme);
+}
+
+// Resizer functionality
+function initResizer() {
+  const resizer = document.getElementById('resizer');
+  const leftPanel = document.querySelector('.left-panel');
+  
+  if (!resizer || !leftPanel) return;
+  
+  let isResizing = false;
+  let startX;
+  let startWidth;
+  
+  resizer.addEventListener('mousedown', function(e) {
+    isResizing = true;
+    startX = e.clientX;
+    startWidth = parseInt(getComputedStyle(leftPanel).width, 10);
+    
+    resizer.classList.add('active');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    
+    e.preventDefault();
+  });
+  
+  document.addEventListener('mousemove', function(e) {
+    if (!isResizing) return;
+    
+    const deltaX = e.clientX - startX;
+    const newWidth = Math.max(280, Math.min(400, startWidth + deltaX));
+    
+    leftPanel.style.width = newWidth + 'px';
+  });
+  
+  document.addEventListener('mouseup', function() {
+    if (!isResizing) return;
+    
+    isResizing = false;
+    resizer.classList.remove('active');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  });
+  
+  // Save and restore resizer position
+  const savedWidth = localStorage.getItem('leftPanelWidth');
+  if (savedWidth) {
+    leftPanel.style.width = savedWidth + 'px';
+  }
+  
+  // Save width on resize
+  resizer.addEventListener('mouseup', function() {
+    const currentWidth = parseInt(getComputedStyle(leftPanel).width, 10);
+    localStorage.setItem('leftPanelWidth', currentWidth);
+  });
 }
 
 // Initialize the application
 document.addEventListener("DOMContentLoaded", function () {
   initTheme();
+  initResizer();
   connectSSE();
 });
