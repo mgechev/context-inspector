@@ -12,7 +12,80 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // Store contexts with timestamps
-const contexts = [];
+const contexts = [
+  {
+    id: 1,
+    title: 'Context 1',
+    content: `This is the first context
+
+    This is the first context
+
+    This is the first context
+
+    This is the first context`,
+    timestamp: new Date().toISOString()
+  },
+  {
+    id: 2,
+    title: 'Context 2',
+    content: `This is the first context
+
+    This is the first context
+
+    This is the first context
+
+    This is the first context
+
+    This is the second context
+
+    This is the second context
+
+    This is the second context
+
+    This is the second context`,
+    timestamp: new Date().toISOString()
+  },
+  {
+    id: 3,
+    title: 'Context 3',
+    content: `This is the first context
+    Foobar
+    This is the first context
+
+    This is the first context
+
+    This is the first context
+
+    This is the third context
+
+    This is the third context
+
+    This is the third context
+
+    This is the third context
+    
+    This is the second context
+
+    This is the second context
+
+    This is the second context
+
+    This is the second context`,
+    timestamp: new Date().toISOString()
+  },
+  {
+    id: 4,
+    title: 'Context 4',
+    content: `This is the fourth context
+    Foobar
+    This is the fourth context
+
+    This is the fourth context
+
+    This is the fourth context`,
+    timestamp: new Date().toISOString()
+  },
+];
 let clients = [];
 
 // SSE endpoint for real-time updates

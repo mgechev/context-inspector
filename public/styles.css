@@ -389,7 +389,6 @@ body {
 .diff-line {
   white-space: pre-wrap;
   padding: 0.125rem 0;
-  border-radius: var(--radius-sm);
   transition: var(--transition);
   font-family: inherit;
 }
@@ -398,8 +397,6 @@ body {
   background: var(--bg-success);
   color: var(--text-success);
   padding: 0.25rem 0.75rem;
-  margin: 0.125rem 0;
-  border-radius: var(--radius-sm);
   border-left: 3px solid #10b981;
 }
 
@@ -407,12 +404,13 @@ body {
   background: var(--bg-danger);
   color: var(--text-danger);
   padding: 0.25rem 0.75rem;
-  margin: 0.125rem 0;
-  border-radius: var(--radius-sm);
   border-left: 3px solid #ef4444;
 }
 
 .diff-line.unchanged {
+  color: var(--text-success);
+  padding: 0.25rem 0.75rem;
+  border-left: 3px solid transparent;
   color: var(--text-secondary);
 }
 

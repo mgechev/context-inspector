@@ -140,47 +140,61 @@ function generateDiff(text1, text2) {
     newlineIsToken: true,
   });
 
-
-
   let diffHtml = "";
   let unchangedCount = 0;
   let unchangedContent = "";
 
   changes.forEach((change, index) => {
     if (change.added) {
-             // If we have accumulated unchanged content, add a collapsible section
-       if (unchangedCount > 0) {
-         diffHtml += createCollapsibleSection(unchangedContent, unchangedCount);
-         unchangedCount = 0;
-         unchangedContent = "";
-       }
-      diffHtml += `<div class="diff-line added">+ ${escapeHtml(
+      // If we have accumulated unchanged content, add it
+      if (unchangedCount > 0) {
+        if (unchangedCount >= 3) {
+          diffHtml += createCollapsibleSection(unchangedContent, unchangedCount);
+        } else {
+          diffHtml += createUnchangedContent(unchangedContent);
+        }
+        unchangedCount = 0;
+        unchangedContent = "";
+      }
+      diffHtml += `<div class="diff-line added">${escapeHtml(
         change.value
       )}</div>`;
     } else if (change.removed) {
-             // If we have accumulated unchanged content, add a collapsible section
-       if (unchangedCount > 0) {
-         diffHtml += createCollapsibleSection(unchangedContent, unchangedCount);
-         unchangedCount = 0;
-         unchangedContent = "";
-       }
-      diffHtml += `<div class="diff-line removed">- ${escapeHtml(
+      // If we have accumulated unchanged content, add it
+      if (unchangedCount > 0) {
+        if (unchangedCount >= 3) {
+          diffHtml += createCollapsibleSection(unchangedContent, unchangedCount);
+        } else {
+          diffHtml += createUnchangedContent(unchangedContent);
+        }
+        unchangedCount = 0;
+        unchangedContent = "";
+      }
+      diffHtml += `<div class="diff-line removed">${escapeHtml(
         change.value
       )}</div>`;
     } else {
-             // Accumulate unchanged content
-       const lines = change.value.split("\n");
-       unchangedCount += lines.length - 1;
-       unchangedContent += change.value;
+      // Accumulate unchanged content
+      const lines = change.value.split("\n");
+      unchangedCount += lines.length - 1;
+      unchangedContent += change.value;
     }
   });
 
-     // Add any remaining unchanged content at the end
-   if (unchangedCount > 0) {
-     diffHtml += createCollapsibleSection(unchangedContent, unchangedCount);
-   }
+  // Add any remaining unchanged content at the end
+  if (unchangedCount > 0) {
+    if (unchangedCount >= 3) {
+      diffHtml += createCollapsibleSection(unchangedContent, unchangedCount);
+    } else {
+      diffHtml += createUnchangedContent(unchangedContent);
+    }
+  }
 
-   return diffHtml;
+  return diffHtml;
+}
+
+function createUnchangedContent(content) {
+  return `<div class="diff-line unchanged">${escapeHtml(content).replace(/\n/g, '<br>')}</div>`;
 }
 
 function createCollapsibleSection(content, lineCount) {
@@ -192,13 +206,7 @@ function createCollapsibleSection(content, lineCount) {
         <span class="collapsed-text">Same content</span>
       </div>
       <div class="collapsible-content" onclick="toggleCollapsible('${sectionId}')">
-        ${content
-          .split("\n")
-          .map(
-            (line) =>
-              `<div class="diff-line unchanged">  ${escapeHtml(line)}</div>`
-          )
-          .join("")}
+        <div class="diff-line unchanged">${escapeHtml(content).replace(/\n/g, '<br>')}</div>
       </div>
     </div>
   `;
@@ -232,20 +240,20 @@ function generateSimpleDiff(text1, text2) {
 
   while (i < lines1.length || j < lines2.length) {
     if (i < lines1.length && j < lines2.length && lines1[i] === lines2[j]) {
-      diff += `<div class="diff-line unchanged">  ${escapeHtml(
+      diff += `<div class="diff-line unchanged">${escapeHtml(
         lines1[i]
       )}</div>`;
       i++;
       j++;
     } else {
       if (i < lines1.length) {
-        diff += `<div class="diff-line removed">- ${escapeHtml(
+        diff += `<div class="diff-line removed">-${escapeHtml(
           lines1[i]
         )}</div>`;
         i++;
       }
       if (j < lines2.length) {
-        diff += `<div class="diff-line added">+ ${escapeHtml(lines2[j])}</div>`;
+        diff += `<div class="diff-line added">+${escapeHtml(lines2[j])}</div>`;
         j++;
       }
     }
