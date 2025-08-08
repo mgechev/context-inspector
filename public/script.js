@@ -25,7 +25,7 @@ function connectSSE() {
 
 function updateStatus(message, connected) {
   const statusEl = document.getElementById("status");
-  const statusText = statusEl.querySelector('span');
+  const statusText = statusEl.querySelector("span");
   statusText.textContent = message;
   statusEl.className = `status ${connected ? "connected" : "disconnected"}`;
 }
@@ -78,89 +78,167 @@ function toggleContextSelection(context) {
 function renderDiff() {
   const diffContainer = document.getElementById("diffContainer");
 
-  if (selectedContexts.length !== 2) {
+  if (selectedContexts.length === 0) {
     diffContainer.innerHTML = `
-            <div class="no-selection">
-                ${
-                  selectedContexts.length === 0
-                    ? "Select two contexts to compare them"
-                    : selectedContexts.length === 1
-                    ? "Select one more context to compare"
-                    : "Too many contexts selected"
-                }
-            </div>
-        `;
+      <div class="no-selection">
+        Select a context to view it, or select two contexts to compare them
+      </div>
+    `;
     return;
   }
 
-  const [context1, context2] = selectedContexts;
-
-  // Load the diff library dynamically
-  loadDiffLibrary().then(() => {
-    const diff = generateDiff(context1.content, context2.content);
+  if (selectedContexts.length === 1) {
+    const context = selectedContexts[0];
 
     diffContainer.innerHTML = `
-            <div class="diff-header">
-                <div class="diff-title">Comparing Contexts</div>
-                <div class="diff-info">
-                    ${context1.title} (${formatTimestamp(
-      context1.timestamp
-    )}) vs ${context2.title} (${formatTimestamp(context2.timestamp)})
-                </div>
-            </div>
-            <div class="diff-content">${diff}</div>
-        `;
-  });
-}
-
-function loadDiffLibrary() {
-  if (window.diff) {
-    return Promise.resolve();
+      <div class="diff-header">
+        <div class="diff-title">Viewing Context</div>
+        <div class="diff-info">
+          ${context.title} (${formatTimestamp(context.timestamp)})
+        </div>
+      </div>
+      <div class="diff-content">
+        <div class="context-view">
+          <pre class="context-text">${escapeHtml(context.content)}</pre>
+        </div>
+      </div>
+    `;
+    return;
   }
 
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = "https://unpkg.com/diff@5.1.0/dist/diff.min.js";
-    script.onload = () => resolve();
-    script.onerror = () => reject();
-    document.head.appendChild(script);
-  });
+  if (selectedContexts.length > 2) {
+    diffContainer.innerHTML = `
+      <div class="no-selection">
+        Too many contexts selected. Please select only one or two contexts.
+      </div>
+    `;
+    return;
+  }
+
+  // Two contexts selected - show diff
+  const [context1, context2] = selectedContexts;
+
+  // Add a small delay to ensure the library is fully loaded
+  const diff = generateDiff(context1.content, context2.content);
+
+  diffContainer.innerHTML = `
+<div class="diff-header">
+    <div class="diff-title">Comparing Contexts</div>
+    <div class="diff-info">
+    ${context1.title} (${formatTimestamp(context1.timestamp)}) vs ${
+    context2.title
+  } (${formatTimestamp(context2.timestamp)})
+    </div>
+</div>
+<div class="diff-content">${diff}</div>
+`;
 }
 
 function generateDiff(text1, text2) {
-  if (!window.diff) {
-    // Fallback to simple diff if library not loaded
-    return generateSimpleDiff(text1, text2);
-  }
-
-  const lines1 = text1.split("\n");
-  const lines2 = text2.split("\n");
-
-  const changes = window.diff.diffLines(text1, text2, {
+  const changes = window.Diff.diffLines(text1, text2, {
     ignoreWhitespace: false,
     newlineIsToken: true,
   });
 
-  let diffHtml = "";
+  console.log("Diff changes:", changes.length);
+  changes.forEach((change, index) => {
+    console.log(
+      `Change ${index}:`,
+      change.added ? "added" : change.removed ? "removed" : "unchanged",
+      "length:",
+      change.value.length,
+      "value:",
+      change.value.substring(0, 30) + "..."
+    );
+  });
 
-  changes.forEach((change) => {
+  let diffHtml = "";
+  let unchangedCount = 0;
+  let unchangedContent = "";
+
+  changes.forEach((change, index) => {
     if (change.added) {
+      // If we have accumulated unchanged content, add a collapsible section
+      if (unchangedCount > 0) {
+        console.log(
+          `Adding collapsible section with ${unchangedCount} lines before added content`
+        );
+        diffHtml += createCollapsibleSection(unchangedContent, unchangedCount);
+        unchangedCount = 0;
+        unchangedContent = "";
+      }
       diffHtml += `<div class="diff-line added">+ ${escapeHtml(
         change.value
       )}</div>`;
     } else if (change.removed) {
+      // If we have accumulated unchanged content, add a collapsible section
+      if (unchangedCount > 0) {
+        console.log(
+          `Adding collapsible section with ${unchangedCount} lines before removed content`
+        );
+        diffHtml += createCollapsibleSection(unchangedContent, unchangedCount);
+        unchangedCount = 0;
+        unchangedContent = "";
+      }
       diffHtml += `<div class="diff-line removed">- ${escapeHtml(
         change.value
       )}</div>`;
     } else {
-      diffHtml += `<div class="diff-line unchanged">  ${escapeHtml(
-        change.value
-      )}</div>`;
+      // Accumulate unchanged content
+      const lines = change.value.split("\n");
+      unchangedCount += lines.length - 1;
+      unchangedContent += change.value;
+      console.log(
+        `Accumulating unchanged content, count: ${unchangedCount}, content length: ${unchangedContent.length}`
+      );
     }
   });
 
+  // Add any remaining unchanged content at the end
+  if (unchangedCount > 0) {
+    console.log(
+      `Adding final collapsible section with ${unchangedCount} lines`
+    );
+    diffHtml += createCollapsibleSection(unchangedContent, unchangedCount);
+  }
+
+  console.log("Final diff HTML length:", diffHtml.length);
   return diffHtml;
 }
+
+function createCollapsibleSection(content, lineCount) {
+  const sectionId = "collapsed-" + Math.random().toString(36).substr(2, 9);
+  console.log(`Creating collapsible section with ${lineCount} lines`);
+  return `
+    <div class="collapsible-section collapsed" data-section-id="${sectionId}">
+      <div class="collapsible-header" onclick="toggleCollapsible('${sectionId}')">
+        <span class="expand-icon">+</span>
+        <span class="collapsed-text">Same content</span>
+      </div>
+      <div class="collapsible-content">
+        ${content
+          .split("\n")
+          .map(
+            (line) =>
+              `<div class="diff-line unchanged">  ${escapeHtml(line)}</div>`
+          )
+          .join("")}
+      </div>
+    </div>
+  `;
+}
+
+// Make toggleCollapsible globally accessible
+window.toggleCollapsible = function (sectionId) {
+  const section = document.querySelector(`[data-section-id="${sectionId}"]`);
+  if (section) {
+    section.classList.toggle("collapsed");
+    const icon = section.querySelector(".expand-icon");
+    if (icon) {
+      icon.textContent = section.classList.contains("collapsed") ? "+" : "−";
+    }
+  }
+};
 
 function generateSimpleDiff(text1, text2) {
   const lines1 = text1.split("\n");
@@ -207,51 +285,48 @@ function escapeHtml(text) {
 
 // Theme management
 function initTheme() {
-  console.log('Initializing theme...');
-  
+  console.log("Initializing theme...");
+
   // Check for saved theme preference or default to auto
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme) {
-    console.log('Found saved theme:', savedTheme);
+    console.log("Found saved theme:", savedTheme);
     currentTheme = savedTheme;
     setTheme(currentTheme);
   } else {
     // Auto-detect based on system preference
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
     currentTheme = prefersDark ? "dark" : "light";
-    console.log('Auto-detected theme:', currentTheme);
+    console.log("Auto-detected theme:", currentTheme);
     setTheme(currentTheme);
   }
 
-  // Listen for system theme changes
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
-    if (currentTheme === "auto") {
-      setTheme(e.matches ? "dark" : "light");
-    }
-  });
-
-  // Setup theme toggle
   const themeToggle = document.getElementById("themeToggle");
   if (themeToggle) {
-    console.log('Theme toggle button found, adding event listener');
+    console.log("Theme toggle button found, adding event listener");
     themeToggle.addEventListener("click", toggleTheme);
+    // Also add event listener for touch devices
+    themeToggle.addEventListener("touchend", toggleTheme);
   } else {
-    console.error('Theme toggle button not found during initialization');
+    console.error("Theme toggle button not found during initialization");
   }
 }
 
 function setTheme(theme) {
-  console.log('Setting theme to:', theme);
   const root = document.documentElement;
   const themeToggle = document.getElementById("themeToggle");
-  
+
   if (!themeToggle) {
-    console.error('Theme toggle button not found');
     return;
   }
-  
+
   const themeText = themeToggle.querySelector(".theme-text");
   const sunIcon = themeToggle.querySelector(".sun-icon");
+
+  // Force remove any existing theme attribute first
+  root.removeAttribute("data-theme");
 
   if (theme === "dark") {
     root.setAttribute("data-theme", "dark");
@@ -262,7 +337,6 @@ function setTheme(theme) {
       `;
     }
   } else {
-    root.removeAttribute("data-theme");
     if (themeText) themeText.textContent = "Light";
     if (sunIcon) {
       sunIcon.innerHTML = `
@@ -273,67 +347,70 @@ function setTheme(theme) {
 
   currentTheme = theme;
   localStorage.setItem("theme", theme);
-  console.log('Theme set successfully, currentTheme:', currentTheme);
+
+  // Force a repaint to ensure CSS changes are applied
+  document.body.style.display = "none";
+  document.body.offsetHeight; // Trigger reflow
+  document.body.style.display = "";
 }
 
-function toggleTheme() {
-  console.log('Theme toggle clicked, current theme:', currentTheme);
+function toggleTheme(e) {
+  if (e) e.preventDefault();
   const newTheme = currentTheme === "dark" ? "light" : "dark";
-  console.log('Switching to theme:', newTheme);
   setTheme(newTheme);
 }
 
 // Resizer functionality
 function initResizer() {
-  const resizer = document.getElementById('resizer');
-  const leftPanel = document.querySelector('.left-panel');
-  
+  const resizer = document.getElementById("resizer");
+  const leftPanel = document.querySelector(".left-panel");
+
   if (!resizer || !leftPanel) return;
-  
+
   let isResizing = false;
   let startX;
   let startWidth;
-  
-  resizer.addEventListener('mousedown', function(e) {
+
+  resizer.addEventListener("mousedown", function (e) {
     isResizing = true;
     startX = e.clientX;
     startWidth = parseInt(getComputedStyle(leftPanel).width, 10);
-    
-    resizer.classList.add('active');
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-    
+
+    resizer.classList.add("active");
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+
     e.preventDefault();
   });
-  
-  document.addEventListener('mousemove', function(e) {
+
+  document.addEventListener("mousemove", function (e) {
     if (!isResizing) return;
-    
+
     const deltaX = e.clientX - startX;
     const newWidth = Math.max(280, Math.min(400, startWidth + deltaX));
-    
-    leftPanel.style.width = newWidth + 'px';
+
+    leftPanel.style.width = newWidth + "px";
   });
-  
-  document.addEventListener('mouseup', function() {
+
+  document.addEventListener("mouseup", function () {
     if (!isResizing) return;
-    
+
     isResizing = false;
-    resizer.classList.remove('active');
-    document.body.style.cursor = '';
-    document.body.style.userSelect = '';
+    resizer.classList.remove("active");
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
   });
-  
+
   // Save and restore resizer position
-  const savedWidth = localStorage.getItem('leftPanelWidth');
+  const savedWidth = localStorage.getItem("leftPanelWidth");
   if (savedWidth) {
-    leftPanel.style.width = savedWidth + 'px';
+    leftPanel.style.width = savedWidth + "px";
   }
-  
+
   // Save width on resize
-  resizer.addEventListener('mouseup', function() {
+  resizer.addEventListener("mouseup", function () {
     const currentWidth = parseInt(getComputedStyle(leftPanel).width, 10);
-    localStorage.setItem('leftPanelWidth', currentWidth);
+    localStorage.setItem("leftPanelWidth", currentWidth);
   });
 }
 

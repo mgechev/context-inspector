@@ -59,35 +59,6 @@
   --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.5);
 }
 
-/* Auto theme detection */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg-primary: #0f0f0f;
-    --bg-secondary: #1a1a1a;
-    --bg-tertiary: #2d2d2d;
-    --bg-accent: #3b82f6;
-    --bg-accent-hover: #2563eb;
-    --bg-success: #065f46;
-    --bg-danger: #7f1d1d;
-    --bg-warning: #92400e;
-    
-    --text-primary: #f8f9fa;
-    --text-secondary: #adb5bd;
-    --text-muted: #6c757d;
-    --text-accent: #ffffff;
-    --text-success: #d1fae5;
-    --text-danger: #fecaca;
-    
-    --border-primary: #404040;
-    --border-secondary: #2d2d2d;
-    --border-accent: #3b82f6;
-    
-    --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.5);
-  }
-}
-
 * {
   margin: 0;
   padding: 0;
@@ -214,6 +185,12 @@ body {
 
 .theme-toggle:active {
   transform: translateY(0);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.theme-toggle:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
 }
 
 .theme-toggle svg {
@@ -456,6 +433,85 @@ body {
   color: var(--text-secondary);
   padding: 0.25rem 0.75rem;
   border-left: 3px solid transparent;
+}
+
+.collapsible-section {
+  margin: 0.25rem 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: var(--transition);
+  border: 1px solid var(--border-secondary);
+}
+
+.collapsible-section.collapsed .collapsible-content {
+  display: none;
+}
+
+.collapsible-header {
+  background: var(--bg-tertiary);
+  padding: 0.375rem 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  transition: var(--transition);
+  border-left: 3px solid var(--border-primary);
+  min-height: 1.5rem;
+}
+
+.collapsible-header:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.expand-icon {
+  font-weight: bold;
+  font-size: 1rem;
+  min-width: 1.25rem;
+  text-align: center;
+  transition: var(--transition);
+  color: var(--text-muted);
+}
+
+.collapsible-header:hover .expand-icon {
+  color: var(--text-primary);
+}
+
+.collapsed-text {
+  flex: 1;
+  font-style: italic;
+}
+
+.collapsible-content {
+  background: var(--bg-primary);
+  transition: var(--transition);
+  border-top: 1px solid var(--border-secondary);
+}
+
+.context-view {
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
+  padding: 0;
+}
+
+.context-text {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Source Code Pro', monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin: 0;
+  padding: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  width: 100%;
+  min-height: 200px;
 }
 
 .no-selection {
