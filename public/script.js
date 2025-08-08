@@ -81,7 +81,7 @@ function renderDiff() {
   if (selectedContexts.length === 0) {
     diffContainer.innerHTML = `
       <div class="no-selection">
-        Select a context to view it, or select two contexts to compare them
+        Select two contexts to compare them
       </div>
     `;
     return;
@@ -409,9 +409,36 @@ function initResizer() {
   });
 }
 
+// Clear all contexts
+function clearAllContexts() {
+  fetch("/v1/contexts", {
+    method: "DELETE",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        selectedContexts = [];
+        renderContexts();
+        renderDiff();
+      }
+    })
+    .catch((error) => {
+      console.error("Error clearing contexts:", error);
+    });
+}
+
+// Initialize clear button
+function initClearButton() {
+  const clearButton = document.getElementById("clearButton");
+  if (clearButton) {
+    clearButton.addEventListener("click", clearAllContexts);
+  }
+}
+
 // Initialize the application
 document.addEventListener("DOMContentLoaded", function () {
   initTheme();
   initResizer();
+  initClearButton();
   connectSSE();
 });

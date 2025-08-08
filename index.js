@@ -12,7 +12,22 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // Store contexts with timestamps
-const contexts = [];
+const contexts = [{
+  id: '1',
+  content: 'This is a test context',
+  title: 'Test Context',
+  timestamp: new Date().toISOString()
+}, {
+  id: '2',
+  content: 'This is a test context 2',
+  title: 'Test Context 2',
+  timestamp: new Date().toISOString()
+}, {
+  id: '3',
+  content: 'This is a test context 3',
+  title: 'Test Context 3',
+  timestamp: new Date().toISOString()
+}];
 const clients = [];
 
 // SSE endpoint for real-time updates
@@ -70,6 +85,17 @@ app.get('/', (req, res) => {
 // GET endpoint to retrieve all contexts
 app.get('/v1/contexts', (req, res) => {
   res.json(contexts);
+});
+
+// DELETE endpoint to clear all contexts
+app.delete('/v1/contexts', (req, res) => {
+  contexts.length = 0;
+  
+  clients.forEach(client => {
+    client.write(`data: ${JSON.stringify(contexts)}\n\n`);
+  });
+
+  res.json({ success: true, message: 'All contexts cleared' });
 });
 
 app.listen(PORT, () => {

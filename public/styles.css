@@ -141,6 +141,51 @@ body {
   z-index: 1;
 }
 
+.header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.clear-button {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.clear-button:hover {
+  background: var(--bg-secondary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.clear-button:active {
+  transform: translateY(0);
+  background: var(--bg-primary);
+}
+
+.clear-button:focus {
+  outline: 2px solid var(--border-primary);
+  outline-offset: 2px;
+}
+
+.clear-button svg {
+  width: 1rem;
+  height: 1rem;
+  transition: var(--transition);
+}
+
 .theme-toggle {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-primary);
