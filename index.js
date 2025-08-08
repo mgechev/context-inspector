@@ -24,15 +24,12 @@ app.get('/events', (req, res) => {
     'Access-Control-Allow-Origin': '*'
   });
 
-  // Send initial data
   res.write(`data: ${JSON.stringify(contexts)}\n\n`);
 
-  // Add client to list
   clients.push(res);
 
-  // Remove client when connection closes
   req.on('close', () => {
-    clients = clients.filter(client => client !== res);
+    clients.splice(clients.indexOf(res), 1);
   });
 });
 
@@ -53,7 +50,6 @@ app.post('/v1/context', (req, res) => {
 
   contexts.push(newContext);
 
-  // Send update to all connected clients
   clients.forEach(client => {
     client.write(`data: ${JSON.stringify(contexts)}\n\n`);
   });

@@ -149,7 +149,10 @@ function generateDiff(text1, text2) {
       // If we have accumulated unchanged content, add it
       if (unchangedCount > 0) {
         if (unchangedCount >= 3) {
-          diffHtml += createCollapsibleSection(unchangedContent, unchangedCount);
+          diffHtml += createCollapsibleSection(
+            unchangedContent,
+            unchangedCount
+          );
         } else {
           diffHtml += createUnchangedContent(unchangedContent);
         }
@@ -163,7 +166,10 @@ function generateDiff(text1, text2) {
       // If we have accumulated unchanged content, add it
       if (unchangedCount > 0) {
         if (unchangedCount >= 3) {
-          diffHtml += createCollapsibleSection(unchangedContent, unchangedCount);
+          diffHtml += createCollapsibleSection(
+            unchangedContent,
+            unchangedCount
+          );
         } else {
           diffHtml += createUnchangedContent(unchangedContent);
         }
@@ -194,7 +200,10 @@ function generateDiff(text1, text2) {
 }
 
 function createUnchangedContent(content) {
-  return `<div class="diff-line unchanged">${escapeHtml(content).replace(/\n/g, '<br>')}</div>`;
+  return `<div class="diff-line unchanged">${escapeHtml(content).replace(
+    /\n/g,
+    "<br>"
+  )}</div>`;
 }
 
 function createCollapsibleSection(content, lineCount) {
@@ -206,7 +215,10 @@ function createCollapsibleSection(content, lineCount) {
         <span class="collapsed-text">Same content</span>
       </div>
       <div class="collapsible-content" onclick="toggleCollapsible('${sectionId}')">
-        <div class="diff-line unchanged">${escapeHtml(content).replace(/\n/g, '<br>')}</div>
+        <div class="diff-line unchanged">${escapeHtml(content).replace(
+          /\n/g,
+          "<br>"
+        )}</div>
       </div>
     </div>
   `;
@@ -219,13 +231,15 @@ window.toggleCollapsible = function (sectionId) {
     section.classList.toggle("collapsed");
     const icon = section.querySelector(".expand-icon");
     const collapsedText = section.querySelector(".collapsed-text");
-    
+
     if (icon) {
       icon.textContent = section.classList.contains("collapsed") ? "+" : "−";
     }
-    
+
     if (collapsedText) {
-      collapsedText.style.display = section.classList.contains("collapsed") ? "inline" : "none";
+      collapsedText.style.display = section.classList.contains("collapsed")
+        ? "inline"
+        : "none";
     }
   }
 };
@@ -240,9 +254,7 @@ function generateSimpleDiff(text1, text2) {
 
   while (i < lines1.length || j < lines2.length) {
     if (i < lines1.length && j < lines2.length && lines1[i] === lines2[j]) {
-      diff += `<div class="diff-line unchanged">${escapeHtml(
-        lines1[i]
-      )}</div>`;
+      diff += `<div class="diff-line unchanged">${escapeHtml(lines1[i])}</div>`;
       i++;
       j++;
     } else {
