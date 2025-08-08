@@ -2,6 +2,8 @@
 
 A real-time web application for receiving, storing, and comparing context strings with a modern diff interface.
 
+**Works for relatively small contexts**. If you are passing hundreds of thousands of tokens as part of your context window, you may want to use a CLI tool instead. Maybe I'll build one if I need it at some point.
+
 ## Demo
 
 ![Context Inspector Demo](demo.gif)
