@@ -2,6 +2,10 @@
 
 A real-time web application for receiving, storing, and comparing context strings with a modern diff interface.
 
+## Demo
+
+![Context Inspector Demo](demo.gif)
+
 ## Features
 
 - **HTTP POST API**: Receive context strings via POST requests to `/v1/context`
