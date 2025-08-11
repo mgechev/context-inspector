@@ -522,6 +522,7 @@ body {
 
 .context-text {
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Source Code Pro', monospace;
+  text-wrap: auto;
   font-size: 0.875rem;
   color: var(--text-primary);
   margin: 0;

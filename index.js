@@ -37,11 +37,8 @@ app.get('/events', (req, res) => {
 // POST endpoint to receive contexts
 app.post('/v1/context', (req, res) => {
   const { context, title } = req.body;
-  
-  if (!context || typeof context !== 'string') {
-    return res.status(400).json({ error: 'Context must be a string' });
-  }
 
+  
   const newContext = {
     id: Date.now().toString(),
     content: context,

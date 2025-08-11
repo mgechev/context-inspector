@@ -5,6 +5,11 @@ let currentTheme = "auto";
 
 // Initialize SSE connection
 function connectSSE() {
+  // Close existing connection if any
+  if (eventSource) {
+    eventSource.close();
+  }
+  
   eventSource = new EventSource("/events");
 
   eventSource.onopen = function () {
@@ -18,6 +23,11 @@ function connectSSE() {
 
   eventSource.onerror = function () {
     updateStatus("Disconnected", false);
+    // Close the current connection before reconnecting
+    if (eventSource) {
+      eventSource.close();
+      eventSource = null;
+    }
     // Try to reconnect after 5 seconds
     setTimeout(connectSSE, 5000);
   };
@@ -28,6 +38,13 @@ function updateStatus(message, connected) {
   const statusText = statusEl.querySelector("span");
   statusText.textContent = message;
   statusEl.className = `status ${connected ? "connected" : "disconnected"}`;
+}
+
+function formatContent(content) {
+  if (typeof content === "object") {
+    content = JSON.stringify(content, null, 2);
+  }
+  return escapeHtml(content);
 }
 
 function renderContexts() {
@@ -49,7 +66,7 @@ function renderContexts() {
             <div class="context-timestamp">${formatTimestamp(
               context.timestamp
             )}</div>
-            <div class="context-content">${escapeHtml(context.content)}</div>
+            <div class="context-content">${formatContent(context.content)}</div>
         `;
 
     contextEl.addEventListener("click", () => toggleContextSelection(context));
@@ -99,7 +116,7 @@ function renderDiff() {
       </div>
       <div class="diff-content">
         <div class="context-view">
-          <pre class="context-text">${escapeHtml(context.content)}</pre>
+          <pre class="context-text">${formatContent(context.content)}</pre>
         </div>
       </div>
     `;
@@ -119,7 +136,7 @@ function renderDiff() {
   const [context1, context2] = selectedContexts;
 
   // Add a small delay to ensure the library is fully loaded
-  const diff = generateDiff(context1.content, context2.content);
+  const diff = generateDiff(formatContent(context1.content), formatContent(context2.content));
 
   diffContainer.innerHTML = `
 <div class="diff-header">
@@ -441,4 +458,11 @@ document.addEventListener("DOMContentLoaded", function () {
   initResizer();
   initClearButton();
   connectSSE();
+});
+
+// Cleanup on page unload
+window.addEventListener("beforeunload", function () {
+  if (eventSource) {
+    eventSource.close();
+  }
 });
