@@ -1,86 +1,134 @@
-# context-inspector
+# Context Inspector
 
-A client library for sending context data to a [context inspector](https://github.com/mgechev/context-inspector) server for debugging and comparison.
+A real-time web application for receiving, storing, and comparing context strings with a modern diff interface.
 
-## Installation
+**Works with contexts up to 25MBs**.
 
-```bash
-npm install context-inspector
-```
+## Demo
+
+![Context Inspector Demo](demo.gif)
+
+## Features
+
+- **HTTP POST API**: Receive context strings via POST requests to `/v1/context`
+- **Real-time Updates**: Uses Server-Sent Events (SSE) to push new contexts to connected clients
+- **Modern UI**: Split-panel interface with contexts list on the left and diff comparison on the right
+- **Git-like Diffing**: Uses the `diff` library for accurate line-by-line comparison
+- **Title Support**: Optional title field for better context organization
+- **Timestamp Tracking**: Each context is automatically timestamped when received
 
 ## Usage
 
-### Basic Usage
+1. **Start the server:**
 
-```javascript
-import { createContextLogger } from 'context-inspector';
+   ```bash
+   git clone git@github.com:mgechev/context-inspector && cd context-inspector && npm i
+   npm start
+   ```
 
-const logger = createContextLogger();
+2. [Optional] **Install the logger:**
 
-// Send a simple string context
-await logger('Hello, world!', 'My first context');
+    ```bash
+    npm i context-inspector --save-dev
+    ```
 
-// Send an object context (will be JSON.stringify'd)
-await logger({ data: 'some data', timestamp: Date.now() }, 'Object context');
-```
+3. **Send contexts via API:**
 
-### Custom Server URL
+    If you're using the logger log events with:
 
-```javascript
-import { createContextLogger } from 'context-inspector';
+    ```js
+    import { createContextLogger } from 'context-inspector';
 
-const logger = createContextLogger('http://my-server:4242/context');
-await logger('Custom context', 'From custom server');
-```
+    const logger = createContextLogger();
+    logger(context);
+    ```
 
-### Error Handling
+    Optionally you can specify a custom URL and title:
 
-```javascript
-import { createContextLogger } from 'context-inspector';
+    ```js
+    import { createContextLogger } from 'context-inspector';
 
-const logger = createContextLogger();
+    const logger = createContextLogger('https://example.com/context');
+    logger(context, title);
+    ```
 
-try {
-  await logger('Important context', 'Error handling example');
-} catch (error) {
-  console.error('Failed to send context:', error);
+    Alternatively, you can send plain HTTP requests:
+
+    ```bash
+    curl -X POST http://localhost:4242/v1/context \
+      -H "Content-Type: application/json" \
+      -d '{"context": "Your context here", "title": "Optional title"}'
+    ```
+
+    Alternatively, in your JavaScript you can use `fetch`:
+
+    ```js
+    fetch('http://localhost:4242/v1/context', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ context: summary})
+      });
+    ```
+
+4. **Open the web interface:**
+   Navigate to `http://localhost:4242` in your browser
+
+5. **Compare contexts:**
+   - Select two contexts from the left panel
+   - View the diff comparison on the right panel
+   - The diff shows added lines in green, removed lines in red, and unchanged lines in gray
+
+## API Endpoints
+
+### POST `/v1/context`
+
+Receive a new context string.
+
+**Request Body:**
+
+```json
+{
+  "context": "Your context string here",
+  "title": "Optional title for the context"
 }
 ```
 
-## API Reference
+**Response:**
 
-### `createContextLogger(url?)`
-
-Creates a context logger function.
-
-**Parameters:**
-
-- `url` (string, optional): The URL of the context inspector server. Defaults to `http://localhost:4242/context`.
-
-**Returns:**
-
-- A function that accepts `context` and `title` parameters and returns a Promise.
-
-### Logger Function
-
-The returned logger function has the following signature:
-
-```javascript
-async function(context, title?)
+```json
+{
+  "success": true,
+  "id": "1754679343625",
+  "timestamp": "2025-08-08T18:55:43.625Z"
+}
 ```
 
-**Parameters:**
+### GET `/v1/contexts`
 
-- `context` (any): The context data to send. Can be a string, object, or any JSON-serializable value.
-- `title` (string, optional): An optional title for the context.
+Retrieve all stored contexts.
 
-**Returns:**
+**Response:**
 
-- Promise that resolves to the server response.
+```json
+[
+  {
+    "id": "1754679343625",
+    "content": "Your context string here",
+    "title": "Test Title",
+    "timestamp": "2025-08-08T18:55:43.625Z"
+  }
+]
+```
 
-## Server Setup
+### GET `/events`
 
-To use this client, you need to run a context inspector server. See the [main repository](https://github.com/mgechev/context-inspector) for server setup instructions.
+Server-Sent Events endpoint for real-time updates.
+
+### GET `/`
+
+Serves the main web interface.
 
 ## License
 
