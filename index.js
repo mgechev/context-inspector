@@ -1,10 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4242;
 
 // Middleware
 app.use(cors());
@@ -35,12 +35,12 @@ app.get('/events', (req, res) => {
 });
 
 // POST endpoint to receive contexts
-app.post('/v1/context', (req, res) => {
+app.post('/context', (req, res) => {
   const { context, title } = req.body;
 
   
   const newContext = {
-    id: Date.now().toString(),
+    id: uuidv4(),
     content: context,
     title: title || `Context ${Date.now()}`,
     timestamp: new Date().toISOString()
@@ -66,12 +66,12 @@ app.get('/', (req, res) => {
 });
 
 // GET endpoint to retrieve all contexts
-app.get('/v1/contexts', (req, res) => {
+app.get('/contexts', (req, res) => {
   res.json(contexts);
 });
 
 // DELETE endpoint to clear all contexts
-app.delete('/v1/contexts', (req, res) => {
+app.delete('/contexts', (req, res) => {
   contexts.length = 0;
   
   clients.forEach(client => {

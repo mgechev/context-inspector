@@ -1,0 +1,39 @@
+{
+  "name": "context-inspector",
+  "version": "0.0.1",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./index.js",
+      "types": "./index.d.ts"
+    }
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mgechev/context-inspector.git"
+  },
+  "keywords": ["context", "inspector", "logger", "debugging", "development", "ai", "agent", "context-logger", "context-inspector", "llm"],
+  "author": "Minko Gechev <mgechev@gmail.com>",
+  "license": "MIT",
+  "description": "A client library for sending context data to a context inspector server for debugging and comparison",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

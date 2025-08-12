@@ -2,7 +2,7 @@
 
 A real-time web application for receiving, storing, and comparing context strings with a modern diff interface.
 
-**Works for relatively small contexts**. If you are passing hundreds of thousands of tokens as part of your context window, you may want to use a CLI tool instead. Maybe I'll build one if I need it at some point.
+**Works with contexts up to 25MBs**.
 
 ## Demo
 
@@ -16,6 +16,69 @@ A real-time web application for receiving, storing, and comparing context string
 - **Git-like Diffing**: Uses the `diff` library for accurate line-by-line comparison
 - **Title Support**: Optional title field for better context organization
 - **Timestamp Tracking**: Each context is automatically timestamped when received
+
+## Usage
+
+1. **Start the server:**
+
+   ```bash
+   git clone git@github.com:mgechev/context-inspector && cd context-inspector && npm i
+   npm start
+   ```
+
+2. [Optional] **Install the logger:**
+
+    ```bash
+    npm i context-inspector --save-dev
+    ```
+
+3. **Send contexts via API:**
+
+    If you're using the logger log events with:
+
+    ```js
+    import { createContextLogger } from 'context-inspector';
+
+    const logger = createContextLogger();
+    logger(context);
+    ```
+
+    Optionally you can specify a custom URL and title:
+
+    ```js
+    import { createContextLogger } from 'context-inspector';
+
+    const logger = createContextLogger('https://example.com/context');
+    logger(context, title);
+    ```
+
+    Alternatively, you can send plain HTTP requests:
+
+    ```bash
+    curl -X POST http://localhost:4242/v1/context \
+      -H "Content-Type: application/json" \
+      -d '{"context": "Your context here", "title": "Optional title"}'
+    ```
+
+    Alternatively, in your JavaScript you can use `fetch`:
+
+    ```js
+    fetch('http://localhost:4242/v1/context', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ context: summary})
+      });
+    ```
+
+4. **Open the web interface:**
+   Navigate to `http://localhost:4242` in your browser
+
+5. **Compare contexts:**
+   - Select two contexts from the left panel
+   - View the diff comparison on the right panel
+   - The diff shows added lines in green, removed lines in red, and unchanged lines in gray
 
 ## API Endpoints
 
@@ -66,42 +129,6 @@ Server-Sent Events endpoint for real-time updates.
 ### GET `/`
 
 Serves the main web interface.
-
-## Usage
-
-1. **Start the server:**
-
-   ```bash
-   npm start
-   ```
-
-2. **Send contexts via API:**
-
-   ```bash
-   curl -X POST http://localhost:3000/v1/context \
-     -H "Content-Type: application/json" \
-     -d '{"context": "Your context here", "title": "Optional title"}'
-   ```
-
-   Alternatively, in your JavaScript you can use `fetch`:
-
-   ```js
-   fetch('http://localhost:3000/v1/context', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ context: summary})
-    });
-   ```
-
-3. **Open the web interface:**
-   Navigate to `http://localhost:3000` in your browser
-
-4. **Compare contexts:**
-   - Select two contexts from the left panel
-   - View the diff comparison on the right panel
-   - The diff shows added lines in green, removed lines in red, and unchanged lines in gray
 
 ## License
 
