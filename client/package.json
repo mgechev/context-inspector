@@ -1,12 +1,9 @@
 {
   "name": "context-inspector",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "index.js",
   "types": "index.d.ts",
   "type": "module",
-  "exports": {
-    "main": "index.js"
-  },
   "files": [
     "index.js",
     "index.d.ts",

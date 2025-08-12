@@ -10,7 +10,7 @@ A real-time web application for receiving, storing, and comparing context string
 
 ## Features
 
-- **HTTP POST API**: Receive context strings via POST requests to `/v1/context`
+- **HTTP POST API**: Receive context strings via POST requests to `/context`
 - **Real-time Updates**: Uses Server-Sent Events (SSE) to push new contexts to connected clients
 - **Modern UI**: Split-panel interface with contexts list on the left and diff comparison on the right
 - **Git-like Diffing**: Uses the `diff` library for accurate line-by-line comparison
@@ -55,7 +55,7 @@ A real-time web application for receiving, storing, and comparing context string
     Alternatively, you can send plain HTTP requests:
 
     ```bash
-    curl -X POST http://localhost:4242/v1/context \
+    curl -X POST http://localhost:4242/context \
       -H "Content-Type: application/json" \
       -d '{"context": "Your context here", "title": "Optional title"}'
     ```
@@ -63,7 +63,7 @@ A real-time web application for receiving, storing, and comparing context string
     Alternatively, in your JavaScript you can use `fetch`:
 
     ```js
-    fetch('http://localhost:4242/v1/context', {
+    fetch('http://localhost:4242/context', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ A real-time web application for receiving, storing, and comparing context string
 
 ## API Endpoints
 
-### POST `/v1/context`
+### POST `/context`
 
 Receive a new context string.
 
@@ -105,7 +105,7 @@ Receive a new context string.
 }
 ```
 
-### GET `/v1/contexts`
+### GET `/contexts`
 
 Retrieve all stored contexts.
 

@@ -428,7 +428,7 @@ function initResizer() {
 
 // Clear all contexts
 function clearAllContexts() {
-  fetch("/v1/contexts", {
+  fetch("/contexts", {
     method: "DELETE",
   })
     .then((response) => response.json())
